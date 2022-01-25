@@ -423,12 +423,14 @@ func messageCone(c echo.Context) (*messageConeResponse, error) {
 		// consumer
 		func(cachedMsgMeta *storage.CachedMetadata) error { // meta +1
 			cachedMsgMeta.ConsumeMetadata(func(metadata *storage.MessageMetadata) { // meta -1
-				tanglePath = append(tanglePath,
-					&messageWithParents{
-						MessageID: metadata.MessageID().ToHex(),
-						Parents:   metadata.Parents().ToHex(),
-					},
-				)
+				if metadata.IsIncludedTxInLedger() {
+					tanglePath = append(tanglePath,
+						&messageWithParents{
+							MessageID: metadata.MessageID().ToHex(),
+							Parents:   metadata.Parents().ToHex(),
+						},
+					)
+				}
 			})
 
 			return nil
